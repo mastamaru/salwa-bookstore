@@ -13,6 +13,9 @@ export default function Home() {
   const [staff_id, setStaffID] = useState("");
   const [transaction_date, setTransactionDate] = useState("");
   const [price, setPrice] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [editingValue, setEditingValue] = useState("");
 
   //menambahkan data ke server
   const handleSubmit = async () => {
@@ -72,31 +75,80 @@ export default function Home() {
       });
   }, []);
 
-  // const handleDelete = (transactionId) => {
-  //   fetch("/api/transaction", {
-  //     method: "DELETE",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify({ transactionId }),
-  //   })
-  //     .then(() => {
-  //       // Refresh data setelah berhasil menghapus transaksi
-  //       fetch("/api/transaction", {
-  //         method: "POST",
-  //       })
-  //         .then((response) => response.json())
-  //         .then((data) => {
-  //           setTransactions(data);
-  //         })
-  //         .catch((error) => {
-  //           console.error(error);
-  //         });
-  //     })
-  //     .catch((error) => {
-  //       console.error(error);
-  //     });
-  // };
+  const handleDelete = async (transactionId) => {
+    try {
+      const response = await fetch(`/api/transaction`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          transaction_id: parseInt(transactionId, 10),
+        }),
+      });
+
+      if (response.status === 204) {
+        // Data berhasil dihapus
+        console.log("Data deleted successfully");
+
+        // Mengambil data terbaru setelah berhasil menghapus data
+        const newResponse = await fetch("/api/transaction", {
+          method: "GET",
+        });
+
+        if (newResponse.ok) {
+          const data = await newResponse.json();
+          console.log(data);
+          setTransactions(data);
+        } else {
+          // Gagal mendapatkan data baru
+          console.error("Failed to fetch new data");
+        }
+      } else {
+        // Gagal menghapus data
+        console.error("Failed to delete data");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  //edit quantity
+  const handleEditSubmit = async () => {
+    // Panggil API untuk update data
+
+    const response = await fetch("/api/transaction", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        transaction_id: editingId,
+        quantity: parseInt(editingValue, 10),
+      }),
+    });
+
+    if (response.ok) {
+      console.log("Data updated successfully");
+      setIsEditing(false);
+      setEditingId(null);
+      // Refresh data
+      fetch("/api/transaction", {
+        method: "GET",
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+          setTransactions(data);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    } else {
+      console.error("Failed to update data");
+    }
+  };
+
   return (
     <>
       <Head>
@@ -169,16 +221,47 @@ export default function Home() {
                 {transactions.map((transaction) => (
                   <tr key={transaction.transaction_id}>
                     <td>{transaction.book_id}</td>
-                    <td>{transaction.quantity}</td>
+                    <td>
+                      {isEditing && transaction.transaction_id === editingId ? (
+                        <input
+                          className="w-[50px] h-[30px] text-center ring-1"
+                          type="number"
+                          value={editingValue}
+                          onChange={(e) => setEditingValue(e.target.value)}
+                        />
+                      ) : (
+                        transaction.quantity
+                      )}
+                    </td>
+
                     <td>{transaction.price}</td>
                     <td>{transaction.customer_id}</td>
                     <td>
-                      <button className="w-[100px] h-[30px] bg-blue-400 text-white">
-                        Edit Quantity
-                      </button>
+                      {isEditing && transaction.transaction_id === editingId ? (
+                        <button
+                          className="w-[100px] h-[30px] bg-green-400 text-white rounded-md"
+                          onClick={handleEditSubmit}
+                        >
+                          Save
+                        </button>
+                      ) : (
+                        <button
+                          className="w-[100px] h-[30px] bg-blue-400 text-white rounded-md"
+                          onClick={() => {
+                            setIsEditing(true);
+                            setEditingId(transaction.transaction_id);
+                            setEditingValue(transaction.quantity);
+                          }}
+                        >
+                          Edit Quantity
+                        </button>
+                      )}
                     </td>
                     <td>
-                      <button className="w-[100px] h-[30px] rounded-md bg-red-600 text-white">
+                      <button
+                        className="w-[100px] h-[30px] rounded-md bg-red-600 text-white"
+                        onClick={() => handleDelete(transaction.transaction_id)}
+                      >
                         Delete
                       </button>
                     </td>

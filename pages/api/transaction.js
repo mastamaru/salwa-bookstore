@@ -5,7 +5,9 @@ export default async function handler(req, res) {
   if (req.method === "GET") {
     try {
       const result = await transact(async (client) => {
-        return await client.query("SELECT * FROM TABEL.transaction");
+        return await client.query(
+          "SELECT * FROM TABEL.transaction ORDER BY transaction_id ASC"
+        );
       });
       return res.json(result.rows);
     } catch (err) {
@@ -49,6 +51,23 @@ export default async function handler(req, res) {
       });
 
       return res.status(201).json({ message: "Data inserted successfully" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  } else if (req.method === "PUT") {
+    try {
+      const { transaction_id, quantity } = req.body; // Mendapatkan transaction_id dan quantity dari body request
+
+      await transact(async (client) => {
+        // Melakukan UPDATE quantity berdasarkan transaction_id yang diberikan
+        await client.query(
+          "UPDATE TABEL.transaction SET quantity = $1 WHERE transaction_id = $2",
+          [quantity, transaction_id]
+        );
+      });
+
+      return res.status(200).json({ message: "Data updated successfully" });
     } catch (err) {
       console.error(err);
       res.status(500).json({ message: "Internal Server Error" });
