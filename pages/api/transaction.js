@@ -57,13 +57,13 @@ export default async function handler(req, res) {
     }
   } else if (req.method === "PUT") {
     try {
-      const { transaction_id, quantity } = req.body; // Mendapatkan transaction_id dan quantity dari body request
+      const { transaction_id, quantity, price } = req.body;
 
       await transact(async (client) => {
-        // Melakukan UPDATE quantity berdasarkan transaction_id yang diberikan
+        // Melakukan UPDATE quantity dan price berdasarkan transaction_id yang diberikan
         await client.query(
-          "UPDATE TABEL.transaction SET quantity = $1 WHERE transaction_id = $2",
-          [quantity, transaction_id]
+          "UPDATE TABEL.transaction SET quantity = $1, price = $2 WHERE transaction_id = $3",
+          [quantity, price, transaction_id]
         );
       });
 

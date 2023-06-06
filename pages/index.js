@@ -16,6 +16,7 @@ export default function Home() {
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editingValue, setEditingValue] = useState("");
+  const [editingValue2, setEditingValue2] = useState("");
 
   //menambahkan data ke server
   const handleSubmit = async () => {
@@ -114,8 +115,6 @@ export default function Home() {
 
   //edit quantity
   const handleEditSubmit = async () => {
-    // Panggil API untuk update data
-
     const response = await fetch("/api/transaction", {
       method: "PUT",
       headers: {
@@ -124,6 +123,7 @@ export default function Home() {
       body: JSON.stringify({
         transaction_id: editingId,
         quantity: parseInt(editingValue, 10),
+        price: parseFloat(editingValue2),
       }),
     });
 
@@ -234,7 +234,18 @@ export default function Home() {
                       )}
                     </td>
 
-                    <td>{transaction.price}</td>
+                    <td>
+                      {isEditing && transaction.transaction_id === editingId ? (
+                        <input
+                          className="w-[50px] h-[30px] text-center ring-1"
+                          type="number"
+                          value={editingValue2}
+                          onChange={(e) => setEditingValue2(e.target.value)}
+                        />
+                      ) : (
+                        transaction.price
+                      )}
+                    </td>
                     <td>{transaction.customer_id}</td>
                     <td>
                       {isEditing && transaction.transaction_id === editingId ? (
@@ -251,9 +262,10 @@ export default function Home() {
                             setIsEditing(true);
                             setEditingId(transaction.transaction_id);
                             setEditingValue(transaction.quantity);
+                            setEditingValue2(transaction.price);
                           }}
                         >
-                          Edit Quantity
+                          Edit
                         </button>
                       )}
                     </td>
