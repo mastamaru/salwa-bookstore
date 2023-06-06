@@ -80,7 +80,7 @@ export default function Home() {
   const handleDelete = async (transaction_id) => {
     try {
       const response = await fetch(
-        `/api/transactionDelete?transaction_id=${transaction_id}`,
+        `/api/transaction?transaction_id=${transaction_id}`,
         {
           // Send transaction_id as a query parameter
           method: "DELETE",
