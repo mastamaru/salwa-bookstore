@@ -2,7 +2,7 @@
 import { transact } from "./db";
 
 export default async function handler(req, res) {
-  if (req.method === "POST") {
+  if (req.method === "GET") {
     try {
       const result = await transact(async (client) => {
         return await client.query("SELECT * FROM TABEL.transaction");
@@ -25,6 +25,30 @@ export default async function handler(req, res) {
       });
 
       return res.status(204).end(); // Respons sukses tanpa konten
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  } else if (req.method === "POST") {
+    try {
+      const {
+        customer_id,
+        book_id,
+        quantity,
+        transaction_date,
+        price,
+        staff_id,
+      } = req.body; // Mendapatkan data dari body request
+
+      await transact(async (client) => {
+        // Melakukan INSERT dengan data yang diberikan
+        await client.query(
+          "INSERT INTO TABEL.transaction (customer_id, book_id, quantity, transaction_date, price, store_id, staff_id) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+          [customer_id, book_id, quantity, transaction_date, price, 1, staff_id]
+        );
+      });
+
+      return res.status(201).json({ message: "Data inserted successfully" });
     } catch (err) {
       console.error(err);
       res.status(500).json({ message: "Internal Server Error" });

@@ -7,10 +7,60 @@ import { useState, useEffect } from "react";
 import InputKolom from "@/components/inputKolom";
 export default function Home() {
   const [transactions, setTransactions] = useState([]);
+  const [customer_id, setCustomerID] = useState("");
+  const [book_id, setBookID] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [staff_id, setStaffID] = useState("");
+  const [transaction_date, setTransactionDate] = useState("");
+  const [price, setPrice] = useState("");
 
+  //menambahkan data ke server
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch("/api/transaction", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          customer_id: parseInt(customer_id),
+          book_id: parseInt(book_id),
+          quantity: parseInt(quantity),
+          staff_id: parseInt(staff_id),
+          transaction_date: parseInt(transaction_date),
+          price: parseFloat(price),
+        }),
+      });
+
+      if (response.ok) {
+        // Data berhasil ditambahkan
+        console.log("Data inserted successfully");
+
+        // Mengambil data terbaru setelah berhasil menambahkan data baru
+        fetch("/api/transaction", {
+          method: "GET",
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+            setTransactions(data);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      } else {
+        // Gagal menambahkan data
+        console.error("Failed to insert data");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // menampilkan data dari server
   useEffect(() => {
     fetch("/api/transaction", {
-      method: "POST",
+      method: "GET",
     })
       .then((response) => response.json())
       .then((data) => {
@@ -64,19 +114,43 @@ export default function Home() {
               <h3 className="text-md">Quantity</h3>
             </div>
             <div className="flex flex-col gap-3">
-              <input className="w-[120px] ring-1"></input>
-              <input className="w-[120px] ring-1"></input>
-              <input className="w-[120px] ring-1"></input>
+              <input
+                className="w-[120px] ring-1"
+                value={customer_id}
+                onChange={(e) => setCustomerID(e.target.value)}
+              />
+              <input
+                className="w-[120px] ring-1"
+                value={book_id}
+                onChange={(e) => setBookID(e.target.value)}
+              />
+              <input
+                className="w-[120px] ring-1"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+              />
             </div>
             <div className="flex flex-col items-start gap-3 font-medium">
-              <h3 className="text-md">Customer Name</h3>
-              <h3 className="text-md">Date</h3>
+              <h3 className="text-md">Staff ID</h3>
+              <h3 className="text-md">Transaction Date</h3>
               <h3 className="text-md">Price</h3>
             </div>
             <div className="flex flex-col gap-3">
-              <input className="w-[120px] ring-1"></input>
-              <input className="w-[120px] ring-1"></input>
-              <input className="w-[120px] ring-1"></input>
+              <input
+                className="w-[120px] ring-1"
+                value={staff_id}
+                onChange={(e) => setStaffID(e.target.value)}
+              />
+              <input
+                className="w-[120px] ring-1"
+                value={transaction_date}
+                onChange={(e) => setTransactionDate(e.target.value)}
+              />
+              <input
+                className="w-[120px] ring-1"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+              />
             </div>
           </div>
           <div className="bg-slate-100 h-[440px] mt-12 w-full overflow-y-scroll">
@@ -113,7 +187,10 @@ export default function Home() {
               </tbody>
             </table>
           </div>
-          <button className="font-medium bg-green-300 w-[100px] mt-3 h-[35px]">
+          <button
+            className="font-medium bg-green-300 w-[100px] mt-3 h-[35px]"
+            onClick={handleSubmit}
+          >
             submit
           </button>
         </div>
