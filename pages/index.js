@@ -75,38 +75,37 @@ export default function Home() {
       });
   }, []);
 
-  const handleDelete = async (transactionId) => {
+  //delete data dari server
+  const handleDelete = async (transaction_id) => {
     try {
-      const response = await fetch(`/api/transaction`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          transaction_id: parseInt(transactionId, 10),
-        }),
+      const response = await fetch(
+        `/api/transactionDelete?transaction_id=${transaction_id}`,
+        {
+          // Send transaction_id as a query parameter
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error(`Error: ${response.status}, ${errorData.message}`);
+        return;
+      }
+
+      console.log("Data deleted successfully");
+      const newResponse = await fetch("/api/transaction", {
+        method: "GET",
       });
 
-      if (response.status === 204) {
-        // Data berhasil dihapus
-        console.log("Data deleted successfully");
-
-        // Mengambil data terbaru setelah berhasil menghapus data
-        const newResponse = await fetch("/api/transaction", {
-          method: "GET",
-        });
-
-        if (newResponse.ok) {
-          const data = await newResponse.json();
-          console.log(data);
-          setTransactions(data);
-        } else {
-          // Gagal mendapatkan data baru
-          console.error("Failed to fetch new data");
-        }
+      if (newResponse.ok) {
+        const data = await newResponse.json();
+        console.log(data);
+        setTransactions(data);
       } else {
-        // Gagal menghapus data
-        console.error("Failed to delete data");
+        console.error("Failed to fetch new data");
       }
     } catch (error) {
       console.error(error);
