@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     try {
       const result = await transact(async (client) => {
         return await client.query(
-          "SELECT * FROM TABEL.transaction ORDER BY transaction_id ASC"
+          "SELECT * FROM TABEL.transaction ORDER BY transaction_id, book_id ASC"
         );
       });
       return res.json(result.rows);

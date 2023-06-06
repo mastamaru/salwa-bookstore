@@ -155,7 +155,7 @@ export default function Home() {
         <title>Salwa Bookstore</title>
       </Head>
       <section className="body bg-white py-20">
-        <div className="flex flex-col mx-auto text-center justify-center items-center w-[820px]">
+        <div className="flex flex-col mx-auto text-center justify-center items-center w-[840px]">
           <h1 className="text-[48px] text-center mx-auto">
             Welcome to Salwa's Bookstore ♡
           </h1>
@@ -167,39 +167,40 @@ export default function Home() {
             </div>
             <div className="flex flex-col gap-3">
               <input
-                className="w-[120px] ring-1"
+                className="w-[120px] ring-1 text-center"
                 value={customer_id}
                 onChange={(e) => setCustomerID(e.target.value)}
               />
               <input
-                className="w-[120px] ring-1"
+                className="w-[120px] ring-1 text-center"
                 value={book_id}
                 onChange={(e) => setBookID(e.target.value)}
               />
               <input
-                className="w-[120px] ring-1"
+                className="w-[120px] ring-1 text-center"
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
               />
             </div>
             <div className="flex flex-col items-start gap-3 font-medium">
               <h3 className="text-md">Staff ID</h3>
-              <h3 className="text-md">Transaction Date</h3>
+              <h3 className="text-md">Transaction Date </h3>
               <h3 className="text-md">Price</h3>
             </div>
             <div className="flex flex-col gap-3">
               <input
-                className="w-[120px] ring-1"
+                className="w-[120px] ring-1 text-center"
                 value={staff_id}
                 onChange={(e) => setStaffID(e.target.value)}
               />
               <input
-                className="w-[120px] ring-1"
+                className="w-[120px] ring-1 text-center"
                 value={transaction_date}
+                placeholder="year"
                 onChange={(e) => setTransactionDate(e.target.value)}
               />
               <input
-                className="w-[120px] ring-1"
+                className="w-[120px] ring-1 text-center"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
               />
