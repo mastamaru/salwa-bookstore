@@ -17,6 +17,9 @@ export default function Home() {
   const [editingId, setEditingId] = useState(null);
   const [editingValue, setEditingValue] = useState("");
   const [editingValue2, setEditingValue2] = useState("");
+  const [data, setData] = useState([]);
+  const [sqlQuery, setSqlQuery] = useState("");
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   //menambahkan data ke server
   const handleSubmit = async () => {
@@ -148,10 +151,41 @@ export default function Home() {
     }
   };
 
+
+  //implement sql builder
+  const fetchDataSQLBuilder = async () => {
+    try {
+    const response = await fetch("/api/sqlBuilder", {
+        method: "POST",
+        headers: {
+        "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ sqlQuery }),
+      });
+
+      if (!response.ok) {
+          throw new Error("Failed to fetch data");
+      }
+
+      const result = await response.json();
+      setData(result);
+      setIsDataLoaded(true);
+      } catch (error) {
+      console.error(error);
+      }
+  };
+
+  const handleSubmitQuery = (e) => {
+      e.preventDefault();
+      fetchDataSQLBuilder();
+  };
+  const handleSQLQueryChange = (event) => {
+    setSqlQuery(event.target.value);
+  };
   return (
     <>
       <Head>
-        <title>Salwa Bookstore</title>
+        <title>Salwa's Bookstore</title>
       </Head>
       <section className="body bg-white py-20">
         <div className="flex flex-col mx-auto text-center justify-center items-center w-[840px]">
@@ -288,6 +322,32 @@ export default function Home() {
           >
             submit
           </button>
+          <div className="w-full flex-col flex gap-3">
+              <h2 className="font-bold text-left text-3xl">SQL Builder</h2>
+              <p className="font-medium text-md -mt-2 text-left">you can enter ur query here..</p>
+              <form onSubmit={handleSubmitQuery}>
+                <textarea
+                    className="w-full h-24 p-4 mt-2 border border-gray-300 rounded"
+                     value={sqlQuery}
+                     onChange={handleSQLQueryChange}
+
+                ></textarea>
+                <button
+                    className="bg-green-300 text-black font-medium w-[100px] h-[35px] mt-3"
+                >
+                    Execute
+                </button>
+                </form>
+                {isDataLoaded && (
+                <div className="mt-2 overflow-y-scroll font-bold h-[400px]">
+                <div className="bg-slate-200 p-8 text-left ">
+                    <pre>{JSON.stringify(data, null, 2)}</pre>
+                </div>
+                </div>
+            )}
+          </div>
+
+
         </div>
       </section>
     </>
